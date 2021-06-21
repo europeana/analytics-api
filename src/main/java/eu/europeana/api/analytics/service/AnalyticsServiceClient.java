@@ -1,7 +1,9 @@
 package eu.europeana.api.analytics.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import eu.europeana.api.analytics.exception.DataboxPushFailedException;
 import eu.europeana.api.analytics.model.Metric;
+import eu.europeana.api.analytics.utils.Constants;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
@@ -23,10 +25,11 @@ public class AnalyticsServiceClient {
     @Value("${apikey.stats.url}")
     private String userStatsUrl;
 
+    @Value("${databox.token}")
+    private String databoxToken;
+
     private RestTemplate restTemplate = new RestTemplate();
     private ObjectMapper mapper;
-
-    private StatsQuery statsQuery;
 
     @PostConstruct
     public void init() {
@@ -42,17 +45,31 @@ public class AnalyticsServiceClient {
         return userStatsUrl;
     }
 
-    public void execute() {
-        statsQuery = new DataboxService();
+    public String getDataboxToken() {
+        return databoxToken;
+    }
+
+    public void execute() throws DataboxPushFailedException {
+        StatsQuery statsQuery = new DataboxService();
         statsQuery.execute(this);
     }
 
+    /**
+     * Method to fetch the statistics from apikey.
+     * Default value 0
+     * @return
+     */
     public String getUserStats() {
         String json = restTemplate.getForObject(getUserStatsUrl(), String.class);
         JSONObject jsonObject = new JSONObject(json);
-        return jsonObject.getString("NumberOfUsers");
+        String noOfUsers = jsonObject.getString(Constants.NUMBER_OF_USERS);
+        return noOfUsers.isEmpty() ? "0" : noOfUsers;
     }
 
+    /**
+     * Method to fetch the statistics from set-api
+     * @return
+     */
     public Metric getSetApiStats() {
         String json = restTemplate.getForObject(getSetApiStatsUrl(), String.class);
         try {

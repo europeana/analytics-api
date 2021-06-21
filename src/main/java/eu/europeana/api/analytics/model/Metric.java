@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import eu.europeana.api.analytics.utils.UsageStatsFields;
 import java.util.Date;
 
+// TODO - Remove this class and use the set-api:set-usage-Stats Metric class
+//  once set-api is uploaded in artifactory.
 public class Metric {
 
     @JsonProperty(UsageStatsFields.TYPE)
@@ -72,15 +74,4 @@ public class Metric {
         this.averageSetsPerUser = averageSetsPerUser;
     }
 
-    @Override
-    public String toString() {
-        return "Metric{" +
-                "type='" + type + '\'' +
-                ", timestamp=" + timestamp +
-                ", noOfPrivateSets=" + noOfPrivateSets +
-                ", noOfPublicSets=" + noOfPublicSets +
-                ", noOfItemsLiked=" + noOfItemsLiked +
-                ", averageSetsPerUser=" + averageSetsPerUser +
-                '}';
-    }
 }

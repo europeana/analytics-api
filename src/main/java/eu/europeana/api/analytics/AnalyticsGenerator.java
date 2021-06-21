@@ -19,9 +19,9 @@ public class AnalyticsGenerator implements CommandLineRunner{
 
     @Override
     public void run(String... args) throws Exception {
-//        if (StringUtils.isEmpty(analyticsServiceClient.getHarvestMethod())) {
-//            throw new IllegalArgumentException("Please specify a harvest method (e.g. ListIdentifiers, ListRecords)");
-//        }
+        if (StringUtils.isEmpty(analyticsServiceClient.getDataboxToken())) {
+            throw new IllegalArgumentException("Databox token cannot be empty!");
+        }
         analyticsServiceClient.execute();
     }
 

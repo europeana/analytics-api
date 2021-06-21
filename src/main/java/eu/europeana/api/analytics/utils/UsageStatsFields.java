@@ -1,11 +1,12 @@
 package eu.europeana.api.analytics.utils;
 
+// TODO - Remove this class and use the set-api:set-usage-Stats Metric class
+//  once set-api is uploaded in artifactory.
 public class UsageStatsFields {
 
     UsageStatsFields() {
     }
 
-    public static final String OVERALL_TOTAL_TYPE = "OverallTotal";
     public static final String TYPE               = "type";
     public static final String CREATED            = "created";
 
