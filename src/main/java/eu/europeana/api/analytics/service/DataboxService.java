@@ -56,7 +56,7 @@ public class DataboxService implements StatsQuery {
     private void pushCollectiveGalleryDataToDataBox(Metric galleryMetricData, Databox databox) throws DataboxPushFailedException {
         try {
             List<KPI> kpis = new ArrayList<>();
-            kpis.add(new KPI().setKey(Constants.COLLECTIVE_GALLERY_DATA).setValue(galleryMetricData).addAttribute(Constants.COLLECTIVE_GALLERY_ATTRIBUTE, Constants.PUBLIC_SETS));
+            kpis.add(new KPI().setKey(Constants.COLLECTIVE_GALLERY_DATA).setValue(galleryMetricData.getNoOfPublicSets()).addAttribute(Constants.COLLECTIVE_GALLERY_ATTRIBUTE, Constants.PUBLIC_SETS));
             kpis.add(new KPI().setKey(Constants.COLLECTIVE_GALLERY_DATA).setValue(galleryMetricData.getNoOfPrivateSets()).addAttribute(Constants.COLLECTIVE_GALLERY_ATTRIBUTE, Constants.PRIVATE_SETS));
             kpis.add(new KPI().setKey(Constants.COLLECTIVE_GALLERY_DATA).setValue(galleryMetricData.getNoOfItemsLiked()).addAttribute(Constants.COLLECTIVE_GALLERY_ATTRIBUTE, Constants.ITEMS_LIKED));
             kpis.add(new KPI().setKey(Constants.COLLECTIVE_GALLERY_DATA).setValue(galleryMetricData.getAverageSetsPerUser()).addAttribute(Constants.COLLECTIVE_GALLERY_ATTRIBUTE, Constants.SETS_PER_USER));
