@@ -60,6 +60,7 @@ public class AnalyticsServiceClient {
      * @return
      */
     public String getUserStats() {
+        LOG.info("Fetching the user statistics from url {} ", this::getUserStatsUrl);
         String json = restTemplate.getForObject(getUserStatsUrl(), String.class);
         JSONObject jsonObject = new JSONObject(json);
         String noOfUsers = jsonObject.getString(Constants.NUMBER_OF_USERS);
@@ -71,6 +72,7 @@ public class AnalyticsServiceClient {
      * @return
      */
     public Metric getSetApiStats() {
+        LOG.info("Fetching the gallery statistics from url {} ", this::getSetApiStatsUrl);
         String json = restTemplate.getForObject(getSetApiStatsUrl(), String.class);
         try {
             return mapper.readValue(json, Metric.class);

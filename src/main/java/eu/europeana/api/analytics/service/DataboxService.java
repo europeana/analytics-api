@@ -25,8 +25,10 @@ public class DataboxService implements StatsQuery {
     private void pushMetrics(AnalyticsServiceClient analyticsServiceClient, Databox databox) throws DataboxPushFailedException {
         long noOfusers = Long.parseLong(analyticsServiceClient.getUserStats());
         Metric galleryMetrics = analyticsServiceClient.getSetApiStats();
+        LOG.info("Successfully fetched the gallery and user statistics");
 
         if(galleryMetrics != null) {
+            LOG.info("Databox push started using token {} ", analyticsServiceClient.getDataboxToken());
             // collective gallery data
             pushCollectiveGalleryDataToDataBox(galleryMetrics, databox);
 
@@ -61,6 +63,7 @@ public class DataboxService implements StatsQuery {
             kpis.add(new KPI().setKey(Constants.COLLECTIVE_GALLERY_DATA).setValue(galleryMetricData.getNoOfItemsLiked()).addAttribute(Constants.COLLECTIVE_GALLERY_ATTRIBUTE, Constants.ITEMS_LIKED));
             kpis.add(new KPI().setKey(Constants.COLLECTIVE_GALLERY_DATA).setValue(galleryMetricData.getAverageSetsPerUser()).addAttribute(Constants.COLLECTIVE_GALLERY_ATTRIBUTE, Constants.SETS_PER_USER));
             databox.push(kpis);
+            LOG.info("Successfully pushed the gallery data to databox");
         } catch (Exception e) {
             throw new DataboxPushFailedException(Constants.COLLECTIVE_GALLERY_DATA, e.getLocalizedMessage());
         }
@@ -83,6 +86,7 @@ public class DataboxService implements StatsQuery {
             List<KPI> kpis = new ArrayList<>();
             kpis.add(new KPI().setKey(type).setValue(value));
             databox.push(kpis);
+            LOG.info("Successfully pushed the data to databox for {}", type);
         } catch (Exception e) {
             throw new DataboxPushFailedException(type, e.getLocalizedMessage());
         }
