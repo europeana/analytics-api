@@ -6,7 +6,7 @@ public class Constants extends UsageStatsFields {
     public static final String NUMBER_OF_USERS       = "NumberOfUsers";
 
     // DataBox Constants
-    public static final String COLLECTIVE_GALLERY_DATA       = "GalleryData";
+    public static final String COLLECTIVE_GALLERY_DATA       = "GalleryMetrics";
     public static final String COLLECTIVE_GALLERY_ATTRIBUTE  = "Type";
 
     public static final String PUBLIC_SETS      = "PublicSets";

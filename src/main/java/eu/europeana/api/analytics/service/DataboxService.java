@@ -31,18 +31,11 @@ public class DataboxService implements StatsQuery {
             LOG.info("Databox push started using token {} ", analyticsServiceClient.getDataboxToken());
             // collective gallery data
             pushCollectiveGalleryDataToDataBox(galleryMetrics, databox);
-
-            // push single metric data for gallery
-            pushIndividualDataToDataBox(Constants.PUBLIC_SETS, galleryMetrics.getNoOfPublicSets(), databox);
-            pushIndividualDataToDataBox(Constants.PRIVATE_SETS, galleryMetrics.getNoOfPrivateSets(), databox);
-            pushIndividualDataToDataBox(Constants.ITEMS_LIKED, galleryMetrics.getNoOfItemsLiked(), databox);
-            pushIndividualDataToDataBox(Constants.SETS_PER_USER, galleryMetrics.getAverageSetsPerUser(), databox);
         } else {
             LOG.error("Error fetching gallery statistics from set api");
         }
         // push single metric data for user
         pushIndividualDataToDataBox(Constants.NUMBER_OF_USERS, noOfusers, databox);
-
     }
 
     /**
