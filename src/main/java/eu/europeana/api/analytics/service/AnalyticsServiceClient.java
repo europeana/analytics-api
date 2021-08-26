@@ -2,8 +2,9 @@ package eu.europeana.api.analytics.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.europeana.api.analytics.exception.DataboxPushFailedException;
-import eu.europeana.api.analytics.model.Metric;
+import eu.europeana.api.commons.definitions.statistics.Metric;
 import eu.europeana.api.analytics.utils.Constants;
+import eu.europeana.api.commons.definitions.statistics.UsageStatsFields;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
@@ -62,9 +63,11 @@ public class AnalyticsServiceClient {
     public String getUserStats() {
         LOG.info("Fetching the user statistics from url {} ", this::getUserStatsUrl);
         String json = restTemplate.getForObject(getUserStatsUrl(), String.class);
-        JSONObject jsonObject = new JSONObject(json);
-        String noOfUsers = jsonObject.getString(Constants.NUMBER_OF_USERS);
-        return noOfUsers.isEmpty() ? "0" : noOfUsers;
+        if (json != null && !json.isEmpty() && json.contains(Constants.NUMBER_OF_USERS)) {
+            JSONObject jsonObject = new JSONObject(json);
+            return jsonObject.getString(Constants.NUMBER_OF_USERS);
+        }
+        return "0";
     }
 
     /**
@@ -73,9 +76,11 @@ public class AnalyticsServiceClient {
      */
     public Metric getSetApiStats() {
         LOG.info("Fetching the gallery statistics from url {} ", this::getSetApiStatsUrl);
-        String json = restTemplate.getForObject(getSetApiStatsUrl(), String.class);
         try {
-            return mapper.readValue(json, Metric.class);
+            String json = restTemplate.getForObject(getSetApiStatsUrl(), String.class);
+            if (json != null && !json.isEmpty() && json.contains(UsageStatsFields.TYPE)) {
+                return mapper.readValue(json, Metric.class);
+            }
         } catch (IOException e) {
             LOG.error("Exception when deserializing response.", e);
         }

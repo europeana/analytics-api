@@ -1,5 +1,7 @@
 package eu.europeana.api.analytics.utils;
 
+import eu.europeana.api.commons.definitions.statistics.UsageStatsFields;
+
 public class Constants extends UsageStatsFields {
 
     // Auth Users Constants
@@ -12,8 +14,4 @@ public class Constants extends UsageStatsFields {
     public static final String PUBLIC_SETS      = "PublicSets";
     public static final String PRIVATE_SETS     = "PrivateSets";
     public static final String ITEMS_LIKED        = "ItemsLiked";
-
-
-
-
 }

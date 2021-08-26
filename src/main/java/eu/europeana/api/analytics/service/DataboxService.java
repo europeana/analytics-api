@@ -3,7 +3,7 @@ package eu.europeana.api.analytics.service;
 import com.databox.sdk.Databox;
 import com.databox.sdk.KPI;
 import eu.europeana.api.analytics.exception.DataboxPushFailedException;
-import eu.europeana.api.analytics.model.Metric;
+import eu.europeana.api.commons.definitions.statistics.Metric;
 import eu.europeana.api.analytics.utils.Constants;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -57,7 +57,7 @@ public class DataboxService implements StatsQuery {
             kpis.add(new KPI().setKey(Constants.COLLECTIVE_GALLERY_DATA).setValue(galleryMetricData.getAverageSetsPerUser()).addAttribute(Constants.COLLECTIVE_GALLERY_ATTRIBUTE, Constants.SETS_PER_USER));
             databox.push(kpis);
             LOG.info("Successfully pushed the gallery data to databox");
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             throw new DataboxPushFailedException(Constants.COLLECTIVE_GALLERY_DATA, e.getLocalizedMessage());
         }
     }
