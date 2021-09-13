@@ -2,6 +2,7 @@ package eu.europeana.api.analytics.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.europeana.api.analytics.exception.DataboxPushFailedException;
+import eu.europeana.api.analytics.exception.ClientResponseException;
 import eu.europeana.api.commons.definitions.statistics.Metric;
 import eu.europeana.api.analytics.utils.Constants;
 import eu.europeana.api.commons.definitions.statistics.UsageStatsFields;
@@ -50,24 +51,26 @@ public class AnalyticsServiceClient {
         return databoxToken;
     }
 
-    public void execute() throws DataboxPushFailedException {
+    public void execute() throws DataboxPushFailedException, ClientResponseException {
         StatsQuery statsQuery = new DataboxService();
         statsQuery.execute(this);
     }
 
     /**
      * Method to fetch the statistics from apikey.
-     * Default value 0
      * @return
      */
-    public String getUserStats() {
+    public long getUserStats() throws ClientResponseException {
         LOG.info("Fetching the user statistics from url {} ", this::getUserStatsUrl);
         String json = restTemplate.getForObject(getUserStatsUrl(), String.class);
-        if (json != null && !json.isEmpty() && json.contains(Constants.NUMBER_OF_USERS)) {
-            JSONObject jsonObject = new JSONObject(json);
-            return jsonObject.getString(Constants.NUMBER_OF_USERS);
+        if(json == null || json.isEmpty()) {
+            throw new ClientResponseException(this.getUserStatsUrl(), "");
         }
-        return "0";
+        if (!json.contains(Constants.NUMBER_OF_USERS)) {
+            throw new ClientResponseException(Constants.NUMBER_OF_USERS + " field not present in user stats response");
+        }
+        JSONObject jsonObject = new JSONObject(json);
+        return Long.parseLong(jsonObject.getString(Constants.NUMBER_OF_USERS));
     }
 
     /**
