@@ -3,6 +3,7 @@ package eu.europeana.api.analytics.service;
 import com.databox.sdk.Databox;
 import com.databox.sdk.KPI;
 import eu.europeana.api.analytics.exception.DataboxPushFailedException;
+import eu.europeana.api.analytics.exception.ClientResponseException;
 import eu.europeana.api.commons.definitions.statistics.Metric;
 import eu.europeana.api.analytics.utils.Constants;
 import org.apache.logging.log4j.LogManager;
@@ -16,14 +17,14 @@ public class DataboxService implements StatsQuery {
     private static final Logger LOG = LogManager.getLogger(DataboxService.class);
 
     @Override
-    public void execute(AnalyticsServiceClient analyticsServiceClient) throws DataboxPushFailedException {
+    public void execute(AnalyticsServiceClient analyticsServiceClient) throws DataboxPushFailedException, ClientResponseException {
         Databox databox = new Databox(analyticsServiceClient.getDataboxToken());
         pushMetrics(analyticsServiceClient, databox);
 
     }
 
-    private void pushMetrics(AnalyticsServiceClient analyticsServiceClient, Databox databox) throws DataboxPushFailedException {
-        long noOfusers = Long.parseLong(analyticsServiceClient.getUserStats());
+    private void pushMetrics(AnalyticsServiceClient analyticsServiceClient, Databox databox) throws DataboxPushFailedException, ClientResponseException {
+        long noOfusers = analyticsServiceClient.getUserStats();
         Metric galleryMetrics = analyticsServiceClient.getSetApiStats();
         LOG.info("Successfully fetched the gallery and user statistics");
 
@@ -32,7 +33,7 @@ public class DataboxService implements StatsQuery {
             // collective gallery data
             pushCollectiveGalleryDataToDataBox(galleryMetrics, databox);
         } else {
-            LOG.error("Error fetching gallery statistics from set api");
+            throw new ClientResponseException("Error fetching gallery statistics from set api.");
         }
         // push single metric data for user
         pushIndividualDataToDataBox(Constants.NUMBER_OF_USERS, noOfusers, databox);
