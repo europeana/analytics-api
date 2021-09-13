@@ -33,7 +33,7 @@ public class DataboxService implements StatsQuery {
             // collective gallery data
             pushCollectiveGalleryDataToDataBox(galleryMetrics, databox);
         } else {
-            LOG.error("Error fetching gallery statistics from set api");
+            throw new ClientResponseException("Error fetching gallery statistics from set api.");
         }
         // push single metric data for user
         pushIndividualDataToDataBox(Constants.NUMBER_OF_USERS, noOfusers, databox);
