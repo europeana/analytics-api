@@ -18,7 +18,8 @@
 
     <properties>
         <java.version>11</java.version>
-        <version.setApi>0.6</version.setApi>
+        <version.apiCommons>0.3.9-SNAPSHOT</version.apiCommons>
+        <version.databox>2.3</version.databox>
 
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
@@ -66,7 +67,7 @@
         <dependency>
             <groupId>eu.europeana.api.commons</groupId>
             <artifactId>commons-definitions</artifactId>
-            <version>0.3.8-SNAPSHOT</version>
+            <version>${version.apiCommons}</version>
         </dependency>
 
         <dependency>
@@ -86,7 +87,7 @@
         <dependency>
             <groupId>com.databox</groupId>
             <artifactId>databox-java</artifactId>
-            <version>2.3</version>
+            <version>${version.databox}</version>
         </dependency>
 
         <dependency>
