@@ -103,13 +103,18 @@ public class AnalyticsServiceClient {
      * Method to fetch the statistics from entity-api v2
      * @return
      */
-    public EntityMetric getEntityApiStats() {
+    public EntityMetric getEntityApiStats() throws ClientResponseException {
         LOG.info("Fetching the entity statistics from url {} ", this::getEntityStatsUrl);
         try {
             String json = restTemplate.getForObject(getEntityStatsUrl(), String.class);
-            if (json != null && !json.isEmpty() && json.contains(UsageStatsFields.TYPE)) {
-                return mapper.readValue(json, EntityMetric.class);
+            if (json == null || json.isEmpty()) {
+                throw new ClientResponseException(this.getEntityStatsUrl(), "");
             }
+            if (!json.contains(UsageStatsFields.ENTITIES_PER_LANG_TYPE)) {
+                throw new ClientResponseException(UsageStatsFields.ENTITIES_PER_LANG_TYPE + " field not present in entity stats response");
+            }
+           return mapper.readValue(json, EntityMetric.class);
+
         } catch (IOException e) {
             LOG.error("Exception when deserializing response.", e);
         }
