@@ -3,7 +3,6 @@ package eu.europeana.api.analytics.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.europeana.api.analytics.exception.DataboxPushFailedException;
 import eu.europeana.api.analytics.exception.ClientResponseException;
-import eu.europeana.api.commons.definitions.statistics.Metric;
 import eu.europeana.api.analytics.utils.Constants;
 import eu.europeana.api.commons.definitions.statistics.UsageStatsFields;
 import eu.europeana.api.commons.definitions.statistics.entity.EntityMetric;
@@ -110,8 +109,8 @@ public class AnalyticsServiceClient {
             if (json == null || json.isEmpty()) {
                 throw new ClientResponseException(this.getEntityStatsUrl(), "");
             }
-            if (!json.contains(UsageStatsFields.ENTITIES_PER_LANG_TYPE)) {
-                throw new ClientResponseException(UsageStatsFields.ENTITIES_PER_LANG_TYPE + " field not present in entity stats response");
+            if (!json.contains(UsageStatsFields.ENTITIES_PER_LANG)) {
+                throw new ClientResponseException(UsageStatsFields.ENTITIES_PER_LANG + " field not present in entity stats response");
             }
            return mapper.readValue(json, EntityMetric.class);
 

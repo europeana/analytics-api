@@ -15,7 +15,9 @@ public class Constants extends UsageStatsFields {
     public static final String ITEMS_LIKED        = "ItemsLiked";
 
     // Entity DataBox Constants
-    public static final String ENTITY_ATTRIBUTE = "Language";
+    public static final String ENTITY_TYPE_METRICS = "EntityPerType";
+    public static final String ENTITY_ATTRIBUTE_TYPE = "Type";
+    public static final String ENTITY_ATTRIBUTE_LANG = "Language";
     public static final String TIMESPAN      = "Timespan";
     public static final String PLACE         = "Place";
     public static final String ORGANISATION  = "Organization";

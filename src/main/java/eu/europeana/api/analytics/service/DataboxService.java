@@ -7,6 +7,7 @@ import eu.europeana.api.analytics.exception.ClientResponseException;
 import eu.europeana.api.analytics.utils.Constants;
 import eu.europeana.api.commons.definitions.statistics.entity.EntitiesPerLanguage;
 import eu.europeana.api.commons.definitions.statistics.entity.EntityMetric;
+import eu.europeana.api.commons.definitions.statistics.entity.EntityStats;
 import eu.europeana.api.commons.definitions.statistics.set.SetMetric;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -41,21 +42,54 @@ public class DataboxService implements StatsQuery {
             throw new ClientResponseException("Error fetching entity statistics from entity api.");
         }
         LOG.info("Successfully fetched the entity statistics");
+        // 1) push entity per type
+        pushEntityPerTypeDataToDataBox(entityMetric.getEntitiesPerType(), databox);
+
+        // 1) push entity per lang
         int count = 0;
-        for (EntitiesPerLanguage entity : entityMetric.getEntities()) {
-            pushCollectiveEntityDataToDataBox(entity, databox);
+        for (EntitiesPerLanguage entity : entityMetric.getEntitiesPerLanguages()) {
+            pushEntityPerLanguageDataToDataBox(entity, databox);
             count ++;
         }
         // fallback check
-        if (count != entityMetric.getEntities().size()) {
-            throw new DataboxPushFailedException("All entities per lang/type are not pushed. Entities pushed "+count + "!= entities fetched "+ entityMetric.getEntities().size());
+        if (count != entityMetric.getEntitiesPerLanguages().size()) {
+            throw new DataboxPushFailedException("All entities per lang/type are not pushed. Entities pushed "+count + "!= entities fetched "+ entityMetric.getEntitiesPerLanguages().size());
         }
-
     }
 
     /**
-     * Method to push all the gallery data in one metric collectively.
-     * With Attribute as the type of metric and Value as the value/count of the metric.
+     *  Method to push entity per type data
+     * With Attribute as the Type of entity
+     * ex : {"data":[ { "$EntityPerType": 11439.0, "Type": "Agent"},
+     *                { "$EntityPerType": 4.0, "Type": "Concept"},
+     *                { "$EntityPerType": 4.0, "Type": "Place"},
+     *                { "$EntityPerType": 2.0, "Type": "Organization"},
+     *                { "$EntityPerType": 0.0, "Type": "Timespan"},
+     *                { "$EntityPerType": 11449.0, "Type": "Total"}]}
+     *
+     * @param entity
+     * @param databox
+     * @throws DataboxPushFailedException
+     */
+    private void pushEntityPerTypeDataToDataBox(EntityStats entity, Databox databox) throws DataboxPushFailedException {
+        try {
+            List<KPI> kpis = new ArrayList<>();
+            kpis.add(new KPI().setKey(Constants.ENTITY_TYPE_METRICS).setValue(entity.getAgents()).addAttribute(Constants.ENTITY_ATTRIBUTE_TYPE, Constants.AGENT));
+            kpis.add(new KPI().setKey(Constants.ENTITY_TYPE_METRICS).setValue(entity.getConcepts()).addAttribute(Constants.ENTITY_ATTRIBUTE_TYPE, Constants.CONCEPT));
+            kpis.add(new KPI().setKey(Constants.ENTITY_TYPE_METRICS).setValue(entity.getPlaces()).addAttribute(Constants.ENTITY_ATTRIBUTE_TYPE, Constants.PLACE));
+            kpis.add(new KPI().setKey(Constants.ENTITY_TYPE_METRICS).setValue(entity.getOrganisations()).addAttribute(Constants.ENTITY_ATTRIBUTE_TYPE, Constants.ORGANISATION));
+            kpis.add(new KPI().setKey(Constants.ENTITY_TYPE_METRICS).setValue(entity.getTimespans()).addAttribute(Constants.ENTITY_ATTRIBUTE_TYPE, Constants.TIMESPAN));
+            kpis.add(new KPI().setKey(Constants.ENTITY_TYPE_METRICS).setValue(entity.getTotal()).addAttribute(Constants.ENTITY_ATTRIBUTE_TYPE, Constants.TOTAL));
+            databox.push(kpis);
+            LOG.info("Successfully pushed the entity per type data to databox");
+        } catch (RuntimeException e) {
+            throw new DataboxPushFailedException(Constants.ENTITY_TYPE_METRICS, e.getLocalizedMessage());
+        }
+    }
+
+    /**
+     * Method to push entity per lang data
+     * With Attribute as the language and Value as the percentage values
      * example :
      *  {"data" : [{"$Timespan":100,"language":"en"},
      *             {"$Concept":94,"language":"en"},
@@ -68,20 +102,20 @@ public class DataboxService implements StatsQuery {
      * @param entity
      * @param databox
      */
-    private void pushCollectiveEntityDataToDataBox(EntitiesPerLanguage entity, Databox databox) throws DataboxPushFailedException {
+    private void pushEntityPerLanguageDataToDataBox(EntitiesPerLanguage entity, Databox databox) throws DataboxPushFailedException {
         try {
             List<KPI> kpis = new ArrayList<>();
-            kpis.add(new KPI().setKey(Constants.TIMESPAN).setValue(entity.getTimespans()).addAttribute(Constants.ENTITY_ATTRIBUTE, entity.getLang()));
-            kpis.add(new KPI().setKey(Constants.CONCEPT).setValue(entity.getConcepts()).addAttribute(Constants.ENTITY_ATTRIBUTE, entity.getLang()));
-            kpis.add(new KPI().setKey(Constants.ORGANISATION).setValue(entity.getOrganisations()).addAttribute(Constants.ENTITY_ATTRIBUTE, entity.getLang()));
-            kpis.add(new KPI().setKey(Constants.AGENT).setValue(entity.getAgents()).addAttribute(Constants.ENTITY_ATTRIBUTE, entity.getLang()));
-            kpis.add(new KPI().setKey(Constants.PLACE).setValue(entity.getPlaces()).addAttribute(Constants.ENTITY_ATTRIBUTE, entity.getLang()));
-            kpis.add(new KPI().setKey(Constants.TOTAL).setValue(entity.getTotal()).addAttribute(Constants.ENTITY_ATTRIBUTE, entity.getLang()));
+            kpis.add(new KPI().setKey(Constants.TIMESPAN).setValue(entity.getTimespans()).addAttribute(Constants.ENTITY_ATTRIBUTE_LANG, entity.getLang()));
+            kpis.add(new KPI().setKey(Constants.CONCEPT).setValue(entity.getConcepts()).addAttribute(Constants.ENTITY_ATTRIBUTE_LANG, entity.getLang()));
+            kpis.add(new KPI().setKey(Constants.ORGANISATION).setValue(entity.getOrganisations()).addAttribute(Constants.ENTITY_ATTRIBUTE_LANG, entity.getLang()));
+            kpis.add(new KPI().setKey(Constants.AGENT).setValue(entity.getAgents()).addAttribute(Constants.ENTITY_ATTRIBUTE_LANG, entity.getLang()));
+            kpis.add(new KPI().setKey(Constants.PLACE).setValue(entity.getPlaces()).addAttribute(Constants.ENTITY_ATTRIBUTE_LANG, entity.getLang()));
+            kpis.add(new KPI().setKey(Constants.TOTAL).setValue(entity.getTotal()).addAttribute(Constants.ENTITY_ATTRIBUTE_LANG, entity.getLang()));
 
             databox.push(kpis);
             LOG.info("Successfully pushed the entity data for language {} to databox", entity.getLang());
         } catch (RuntimeException e) {
-            throw new DataboxPushFailedException("entity for " + Constants.ENTITY_ATTRIBUTE + " " + entity.getLang(), e.getLocalizedMessage());
+            throw new DataboxPushFailedException("entity for " + Constants.ENTITY_ATTRIBUTE_LANG + " " + entity.getLang(), e.getLocalizedMessage());
         }
     }
 
