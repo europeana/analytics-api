@@ -134,7 +134,10 @@ public class DataboxService implements StatsQuery {
      *  {"data": [ { "$GalleryMetrics": 145, "Type": "PublicSets"},
      *             { "$GalleryMetrics": 51, "Type": "PrivateSets"},
      *             { "$GalleryMetrics": 296, "Type": "ItemsLiked"},
-     *             { "$GalleryMetrics": 6, "Type": "AverageSetsPerUser"}
+     *             { "$GalleryMetrics": 6, "Type": "AverageSetsPerUser"},
+     *             { "$GalleryMetrics": 6, "Type": "NumberOfUsersWithGallery"},
+     *             { "$GalleryMetrics": 1, "Type": "NumberOfUsersWithLike"},
+     *             { "$GalleryMetrics": 6, "Type": "NumberOfUsersWithLikeOrGallery"}
      *         ]}
      *
      * @param galleryMetricData
@@ -147,6 +150,10 @@ public class DataboxService implements StatsQuery {
             kpis.add(new KPI().setKey(Constants.GALLERY_METRICS).setValue(galleryMetricData.getNoOfPrivateSets()).addAttribute(Constants.GALLERY_ATTRIBUTE, Constants.PRIVATE_SETS));
             kpis.add(new KPI().setKey(Constants.GALLERY_METRICS).setValue(galleryMetricData.getNoOfItemsLiked()).addAttribute(Constants.GALLERY_ATTRIBUTE, Constants.ITEMS_LIKED));
             kpis.add(new KPI().setKey(Constants.GALLERY_METRICS).setValue(galleryMetricData.getAverageSetsPerUser()).addAttribute(Constants.GALLERY_ATTRIBUTE, Constants.SETS_PER_USER));
+            kpis.add(new KPI().setKey(Constants.GALLERY_METRICS).setValue(galleryMetricData.getNumberOfUsersWithGallery()).addAttribute(Constants.GALLERY_ATTRIBUTE, Constants.NUMBER_OF_USER_WITH_GALLERY));
+            kpis.add(new KPI().setKey(Constants.GALLERY_METRICS).setValue(galleryMetricData.getNumberOfUsersWithLike()).addAttribute(Constants.GALLERY_ATTRIBUTE, Constants.NUMBER_OF_USER_WITH_LIKE));
+            kpis.add(new KPI().setKey(Constants.GALLERY_METRICS).setValue(galleryMetricData.getNumberOfUsersWithLikeOrGallery()).addAttribute(Constants.GALLERY_ATTRIBUTE, Constants.NUMBER_OF_USER_WITH_LIKE_OR_GALLERY));
+
             databox.push(kpis);
             LOG.info("Successfully pushed the gallery data to databox");
         } catch (RuntimeException e) {
