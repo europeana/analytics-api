@@ -6,6 +6,7 @@ import eu.europeana.api.analytics.exception.ClientResponseException;
 import eu.europeana.api.analytics.utils.Constants;
 import eu.europeana.api.commons.definitions.statistics.UsageStatsFields;
 import eu.europeana.api.commons.definitions.statistics.entity.EntityMetric;
+import eu.europeana.api.commons.definitions.statistics.search.SearchMetric;
 import eu.europeana.api.commons.definitions.statistics.set.SetMetric;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -31,6 +32,9 @@ public class AnalyticsServiceClient {
     @Value("${entity.stats.url}")
     private String entityStatsUrl;
 
+    @Value("${search.api.stats.url}")
+    private String searchApiUrl;
+
     @Value("${databox.token}")
     private String databoxToken;
 
@@ -53,6 +57,10 @@ public class AnalyticsServiceClient {
 
     public String getEntityStatsUrl() {
         return entityStatsUrl;
+    }
+
+    public String getSearchApiUrl() {
+        return searchApiUrl;
     }
 
     public String getDataboxToken() {
@@ -113,6 +121,35 @@ public class AnalyticsServiceClient {
                 throw new ClientResponseException(UsageStatsFields.ENTITIES_PER_LANG + " field not present in entity stats response");
             }
            return mapper.readValue(json, EntityMetric.class);
+
+        } catch (IOException e) {
+            LOG.error("Exception when deserializing response.", e);
+        }
+        return null;
+    }
+
+    /**
+     * Method to fetch the statistics from search api
+     * @return
+     */
+    public SearchMetric getSearchApiStats() throws ClientResponseException {
+        LOG.info("Fetching the entity statistics from url {} ", this::getSearchApiUrl);
+        try {
+            String json = restTemplate.getForObject(getSearchApiUrl(), String.class);
+            if (json == null || json.isEmpty()) {
+                throw new ClientResponseException(this.getSearchApiUrl(), "");
+            }
+            if (!json.contains(UsageStatsFields.ITEMS_LINKED_TO_ENTITIES)) {
+                throw new ClientResponseException(UsageStatsFields.ITEMS_LINKED_TO_ENTITIES + " field not present in search api stats response");
+            }
+            if(!json.contains(UsageStatsFields.ALL_RECORDS) || !json.contains(UsageStatsFields.NON_COMPLAINT_RECORDS) ||
+                    !json.contains(UsageStatsFields.ALL_COMPLAINT_RECORDS) || !json.contains(UsageStatsFields.HIGH_QUALITY_DATA) ||
+                    !json.contains(UsageStatsFields.HIGH_QUALITY_CONTENT) || !json.contains(UsageStatsFields.HIGH_QUALITY_RESUABLE_CONTENT) ||
+                    !json.contains(UsageStatsFields.HIGH_QUALITY_METADATA)) {
+                throw new ClientResponseException(" High quality metric data not present in search api stats response");
+
+            }
+            return mapper.readValue(json, SearchMetric.class);
 
         } catch (IOException e) {
             LOG.error("Exception when deserializing response.", e);
