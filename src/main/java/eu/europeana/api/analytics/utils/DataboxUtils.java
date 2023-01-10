@@ -3,7 +3,6 @@ package eu.europeana.api.analytics.utils;
 import com.databox.sdk.Databox;
 import com.databox.sdk.KPI;
 import eu.europeana.api.analytics.exception.DataboxPushFailedException;
-import eu.europeana.api.commons.definitions.statistics.Metric;
 import eu.europeana.api.commons.definitions.statistics.UsageStatsFields;
 import eu.europeana.api.commons.definitions.statistics.entity.EntitiesPerLanguage;
 import eu.europeana.api.commons.definitions.statistics.entity.EntityStats;
@@ -99,7 +98,7 @@ public class DataboxUtils {
             kpis.add(new KPI().setKey(Constants.ITEMS_LINKED_TO_ENTITIES).setValue(linkedItemMetric.getOrganisations()).addAttribute(Constants.TYPE_ATTRIBUTE, Constants.ORGANISATION));
             kpis.add(new KPI().setKey(Constants.ITEMS_LINKED_TO_ENTITIES).setValue(linkedItemMetric.getTimespans()).addAttribute(Constants.TYPE_ATTRIBUTE, Constants.TIMESPAN));
             kpis.add(new KPI().setKey(Constants.ITEMS_LINKED_TO_ENTITIES).setValue(linkedItemMetric.getPlaces()).addAttribute(Constants.TYPE_ATTRIBUTE, Constants.PLACE));
-            kpis.add(new KPI().setKey(Constants.ITEMS_LINKED_TO_ENTITIES).setValue(linkedItemMetric.getTotal()).addAttribute(Constants.TYPE_ATTRIBUTE, Constants.OVERALL));
+            kpis.add(new KPI().setKey(Constants.ITEMS_LINKED_TO_ENTITIES).setValue(linkedItemMetric.getAll()).addAttribute(Constants.TYPE_ATTRIBUTE, Constants.ALL));
 
             databox.push(kpis);
             LOG.info("Successfully pushed the linked items for entites data to databox");
