@@ -118,6 +118,8 @@ public class DataboxUtils {
      *             { "$GalleryMetrics": 6, "Type": "NumberOfUsersWithGallery"},
      *             { "$GalleryMetrics": 1, "Type": "NumberOfUsersWithLike"},
      *             { "$GalleryMetrics": 6, "Type": "NumberOfUsersWithLikeOrGallery"}
+     *             { "$GalleryMetrics": 6, "Type": "NumberOfEntitySets"}
+     *             { "$GalleryMetrics": 6, "Type": "NumberOfItemsInEntitySets"}
      *         ]}
      *
      * @param galleryMetricData
@@ -133,6 +135,8 @@ public class DataboxUtils {
             kpis.add(new KPI().setKey(Constants.GALLERY_METRICS).setValue(galleryMetricData.getNumberOfUsersWithGallery()).addAttribute(Constants.TYPE_ATTRIBUTE, Constants.NUMBER_OF_USER_WITH_GALLERY));
             kpis.add(new KPI().setKey(Constants.GALLERY_METRICS).setValue(galleryMetricData.getNumberOfUsersWithLike()).addAttribute(Constants.TYPE_ATTRIBUTE, Constants.NUMBER_OF_USER_WITH_LIKE));
             kpis.add(new KPI().setKey(Constants.GALLERY_METRICS).setValue(galleryMetricData.getNumberOfUsersWithLikeOrGallery()).addAttribute(Constants.TYPE_ATTRIBUTE, Constants.NUMBER_OF_USER_WITH_LIKE_OR_GALLERY));
+            kpis.add(new KPI().setKey(Constants.GALLERY_METRICS).setValue(galleryMetricData.getNumberOfEntitySets()).addAttribute(Constants.TYPE_ATTRIBUTE, Constants.NUMBER_OF_ENTITY_SETS));
+            kpis.add(new KPI().setKey(Constants.GALLERY_METRICS).setValue(galleryMetricData.getNumberOfItemsInEntitySets()).addAttribute(Constants.TYPE_ATTRIBUTE, Constants.NUMBER_OF_ITEMS_IN_ENTITY_SETS));
 
             databox.push(kpis);
             LOG.info("Successfully pushed the gallery data to databox");
