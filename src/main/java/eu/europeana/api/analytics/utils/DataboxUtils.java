@@ -66,7 +66,7 @@ public class DataboxUtils {
             kpis.add(new KPI().setKey(keyValue).setValue(linkedItemMetric.getAudio()).addAttribute(Constants.TYPE_ATTRIBUTE, UsageStatsFields.AUDIO));
             kpis.add(new KPI().setKey(keyValue).setValue(linkedItemMetric.getVideo()).addAttribute(Constants.TYPE_ATTRIBUTE, UsageStatsFields.VIDEO));
             kpis.add(new KPI().setKey(keyValue).setValue(linkedItemMetric.getThreeD()).addAttribute(Constants.TYPE_ATTRIBUTE, UsageStatsFields.THREE_D));
-            kpis.add(new KPI().setKey(keyValue).setValue(linkedItemMetric.getTotal()).addAttribute(Constants.TYPE_ATTRIBUTE, UsageStatsFields.TOTAL));
+            kpis.add(new KPI().setKey(keyValue).setValue(linkedItemMetric.getAll()).addAttribute(Constants.TYPE_ATTRIBUTE, UsageStatsFields.ALL));
 
             databox.push(kpis);
             LOG.info("Successfully pushed the high quality metric data to databox");
