@@ -72,7 +72,6 @@ public class DataboxService implements StatsQuery {
         DataboxUtils.pushCollectiveGalleryDataToDataBox(galleryMetrics, databox);
     }
 
-
     private void pushSearchApiMetrics(SearchMetric searchMetric, Databox databox) throws ClientResponseException, DataboxPushFailedException {
         if (searchMetric == null) {
             throw new ClientResponseException("Error fetching entity statistics from entity api.");
