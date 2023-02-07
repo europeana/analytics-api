@@ -8,6 +8,7 @@ import eu.europeana.api.commons.definitions.statistics.entity.EntitiesPerLanguag
 import eu.europeana.api.commons.definitions.statistics.entity.EntityStats;
 import eu.europeana.api.commons.definitions.statistics.search.HighQualityMetric;
 import eu.europeana.api.commons.definitions.statistics.set.SetMetric;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -127,20 +128,21 @@ public class DataboxUtils {
      * @param entity
      * @param databox
      */
-    public static void pushEntityPerLanguageDataToDataBox(EntitiesPerLanguage entity, Databox databox) throws DataboxPushFailedException {
+    public static void pushEntityPerLanguageDataToDataBox(EntitiesPerLanguage entity, Databox databox, String appendKey) throws DataboxPushFailedException {
         try {
+            String append = appendKey + Constants.SEPERATOR;
             List<KPI> kpis = new ArrayList<>();
-            kpis.add(new KPI().setKey(Constants.TIMESPAN).setValue(entity.getTimespans()).addAttribute(Constants.ENTITY_ATTRIBUTE_LANG, entity.getLang()));
-            kpis.add(new KPI().setKey(Constants.CONCEPT).setValue(entity.getConcepts()).addAttribute(Constants.ENTITY_ATTRIBUTE_LANG, entity.getLang()));
-            kpis.add(new KPI().setKey(Constants.ORGANISATION).setValue(entity.getOrganisations()).addAttribute(Constants.ENTITY_ATTRIBUTE_LANG, entity.getLang()));
-            kpis.add(new KPI().setKey(Constants.AGENT).setValue(entity.getAgents()).addAttribute(Constants.ENTITY_ATTRIBUTE_LANG, entity.getLang()));
-            kpis.add(new KPI().setKey(Constants.PLACE).setValue(entity.getPlaces()).addAttribute(Constants.ENTITY_ATTRIBUTE_LANG, entity.getLang()));
-            kpis.add(new KPI().setKey(Constants.ALL).setValue(entity.getAll()).addAttribute(Constants.ENTITY_ATTRIBUTE_LANG, entity.getLang()));
+            kpis.add(new KPI().setKey(append + Constants.TIMESPAN).setValue(entity.getTimespans()).addAttribute(Constants.ENTITY_ATTRIBUTE_LANG, entity.getLang()));
+            kpis.add(new KPI().setKey(append + Constants.CONCEPT).setValue(entity.getConcepts()).addAttribute(Constants.ENTITY_ATTRIBUTE_LANG, entity.getLang()));
+            kpis.add(new KPI().setKey(append + Constants.ORGANISATION).setValue(entity.getOrganisations()).addAttribute(Constants.ENTITY_ATTRIBUTE_LANG, entity.getLang()));
+            kpis.add(new KPI().setKey(append + Constants.AGENT).setValue(entity.getAgents()).addAttribute(Constants.ENTITY_ATTRIBUTE_LANG, entity.getLang()));
+            kpis.add(new KPI().setKey(append + Constants.PLACE).setValue(entity.getPlaces()).addAttribute(Constants.ENTITY_ATTRIBUTE_LANG, entity.getLang()));
+            kpis.add(new KPI().setKey(appendKey).setValue(entity.getAll()).addAttribute(Constants.ENTITY_ATTRIBUTE_LANG, entity.getLang()));
 
             databox.push(kpis);
             LOG.info("Successfully pushed the entity data for language {} to databox", entity.getLang());
         } catch (RuntimeException e) {
-            throw new DataboxPushFailedException("entity for " + Constants.ENTITY_ATTRIBUTE_LANG + " " + entity.getLang(), e.getLocalizedMessage());
+            throw new DataboxPushFailedException("entity for " + appendKey + " " + entity.getLang(), e.getLocalizedMessage());
         }
     }
 
@@ -161,12 +163,17 @@ public class DataboxUtils {
     public static void pushEntityDataToDataBox(EntityStats entity, Databox databox, String key) throws DataboxPushFailedException {
         try {
             List<KPI> kpis = new ArrayList<>();
-            kpis.add(new KPI().setKey(key).setValue(entity.getAgents()).addAttribute(Constants.TYPE_ATTRIBUTE, Constants.AGENT));
-            kpis.add(new KPI().setKey(key).setValue(entity.getConcepts()).addAttribute(Constants.TYPE_ATTRIBUTE, Constants.CONCEPT));
+            kpis.add(new KPI().setKey(key).setValue(entity.getAgents()).addAttribute(Constants.TYPE_ATTRIBUTE, Constants.PERSON));
+            kpis.add(new KPI().setKey(key).setValue(entity.getConcepts()).addAttribute(Constants.TYPE_ATTRIBUTE, Constants.TOPIC));
             kpis.add(new KPI().setKey(key).setValue(entity.getPlaces()).addAttribute(Constants.TYPE_ATTRIBUTE, Constants.PLACE));
             kpis.add(new KPI().setKey(key).setValue(entity.getOrganisations()).addAttribute(Constants.TYPE_ATTRIBUTE, Constants.ORGANISATION));
             kpis.add(new KPI().setKey(key).setValue(entity.getTimespans()).addAttribute(Constants.TYPE_ATTRIBUTE, Constants.TIMESPAN));
-            kpis.add(new KPI().setKey(key).setValue(entity.getAll()).addAttribute(Constants.TYPE_ATTRIBUTE, Constants.ALL));
+            // for ItemsLinkedToEntities key the attribute is 'any'
+            if (StringUtils.equals(key, Constants.ITEMS_LINKED_TO_ENTITIES_KEY)) {
+                kpis.add(new KPI().setKey(key).setValue(entity.getAll()).addAttribute(Constants.TYPE_ATTRIBUTE, Constants.ANY));
+            } else {
+                kpis.add(new KPI().setKey(key).setValue(entity.getAll()).addAttribute(Constants.TYPE_ATTRIBUTE, Constants.ALL));
+            }
             databox.push(kpis);
             LOG.info("Successfully pushed the {} data to databox", key);
         } catch (RuntimeException e) {

@@ -16,12 +16,23 @@ public class Constants extends UsageStatsFields {
 
     // Entity DataBox Constants
     public static final String ENTITY_TYPE_METRICS = "EntityPerType";
+    public static final String ENTITY_PER_LANG_METRICS = "EntityPerLanguage";
+    public static final String SEPERATOR = ".";
+
     public static final String ENTITY_ATTRIBUTE_LANG = "Language";
     public static final String TIMESPAN      = "Timespan";
     public static final String PLACE         = "Place";
     public static final String ORGANISATION  = "Organization";
-    public static final String CONCEPT       = "Concept";
-    public static final String AGENT         = "Agent";
-    public static final String TOTAL         = "Total";
+    public static final String TOPIC       = "Topic";
+    public static final String PERSON         = "Person";
+    public static final String AGENT       = "Agent";
+    public static final String CONCEPT         = "Concept";
+    public static final String ANY = "any";
+    public static final String ITEMS_LINKED_TO_ENTITIES_KEY = "ItemsLinkedToEntities";
+    public static final String ENTITY_IN_EUROPEANA_PER_TYPE = "EntityInEuropeanaPerType";
+    public static final String ENTITY_IN_EUROPEANA_PER_LANGUAGE = "EntityInEuropeanaPerLanguage";
+
+
+
 
 }

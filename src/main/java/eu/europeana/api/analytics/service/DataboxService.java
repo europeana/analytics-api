@@ -13,6 +13,8 @@ import eu.europeana.api.commons.definitions.statistics.set.SetMetric;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.List;
+
 public class DataboxService implements StatsQuery {
 
     private static final Logger LOG = LogManager.getLogger(DataboxService.class);
@@ -34,7 +36,7 @@ public class DataboxService implements StatsQuery {
         pushGalleryMetrics(galleryMetrics, databox);
         DataboxUtils.pushIndividualDataToDataBox(Constants.NUMBER_OF_USERS, noOfusers, databox);
         pushEntityMetrics(entityMetrics, databox);
-        pushSearchApiMetrics(searchMetric, databox);
+       pushSearchApiMetrics(searchMetric, databox);
     }
 
     private void pushEntityMetrics(EntityMetric entityMetric, Databox databox) throws ClientResponseException, DataboxPushFailedException {
@@ -46,20 +48,24 @@ public class DataboxService implements StatsQuery {
         DataboxUtils.pushEntityDataToDataBox(entityMetric.getEntitiesPerType(), databox, Constants.ENTITY_TYPE_METRICS);
 
         // 2) push In europeana entity per type
-        DataboxUtils.pushEntityDataToDataBox(entityMetric.getInEuropeanaPerType(), databox, Constants.EUROPEANA_ENTITIES_PER_TYPE);
+        DataboxUtils.pushEntityDataToDataBox(entityMetric.getInEuropeanaPerType(), databox, Constants.ENTITY_IN_EUROPEANA_PER_TYPE);
 
         // 3) push entity per lang
+        pushPerlanguageData(entityMetric.getEntitiesPerLanguages(), Constants.ENTITY_PER_LANG_METRICS, databox);
+        // 4) push In europeana entity per lang
+        pushPerlanguageData(entityMetric.getInEuropeanaPerLanguage(), Constants.ENTITY_IN_EUROPEANA_PER_LANGUAGE, databox);
+    }
+
+    private void pushPerlanguageData(List<EntitiesPerLanguage> entitiesPerLanguages, String key, Databox databox) throws DataboxPushFailedException {
         int count = 0;
-        for (EntitiesPerLanguage entity : entityMetric.getEntitiesPerLanguages()) {
-            DataboxUtils.pushEntityPerLanguageDataToDataBox(entity, databox);
+        for (EntitiesPerLanguage entity : entitiesPerLanguages) {
+            DataboxUtils.pushEntityPerLanguageDataToDataBox(entity, databox, key);
             count ++;
         }
         // fallback check
-        if (count != entityMetric.getEntitiesPerLanguages().size()) {
-            throw new DataboxPushFailedException("All entities per lang/type are not pushed. Entities pushed "+count + "!= entities fetched "+ entityMetric.getEntitiesPerLanguages().size());
+        if (count != entitiesPerLanguages.size()) {
+            throw new DataboxPushFailedException("All entities per lang/type are not pushed. Entities pushed "+count + "!= entities fetched "+ entitiesPerLanguages.size());
         }
-
-        // 4 TODO see how will we In europeana per lang as the key and attribute will be same hence , we need to add or modify the values to differ it from entity per lang
     }
 
     private void pushGalleryMetrics(SetMetric galleryMetrics, Databox databox) throws ClientResponseException, DataboxPushFailedException {
@@ -76,7 +82,7 @@ public class DataboxService implements StatsQuery {
         }
         LOG.info("Successfully fetched the search api statistics");
 
-        DataboxUtils.pushEntityDataToDataBox(searchMetric.getItemsLinkedToEntities(), databox, Constants.ITEMS_LINKED_TO_ENTITIES);
+        DataboxUtils.pushEntityDataToDataBox(searchMetric.getItemsLinkedToEntities(), databox, Constants.ITEMS_LINKED_TO_ENTITIES_KEY);
         DataboxUtils.pushHighQualityMetric(searchMetric.getAllRecords(), databox, UsageStatsFields.ALL_RECORDS);
         DataboxUtils.pushHighQualityMetric(searchMetric.getAllCompliantRecords(), databox, UsageStatsFields.ALL_COMPLAINT_RECORDS);
         DataboxUtils.pushHighQualityMetric(searchMetric.getNonCompliantRecord(), databox, UsageStatsFields.NON_COMPLAINT_RECORDS);
