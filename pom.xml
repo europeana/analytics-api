@@ -17,7 +17,7 @@
 
     <properties>
         <java.version>11</java.version>
-        <version.apiCommons>0.3.18-SNAPSHOT</version.apiCommons>
+        <version.apiCommons>0.3.23</version.apiCommons>
         <version.databox>2.3</version.databox>
 
         <maven.compiler.source>${java.version}</maven.compiler.source>
