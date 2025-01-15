@@ -76,16 +76,21 @@ public class AnalyticsServiceClient {
      * @return
      */
     public long getUserStats() {
-        LOG.info("Fetching the user statistics from url {}", this::getUserStatsUrl);
-        String json = restTemplate.getForObject(getUserStatsUrl(), String.class);
-        if(json == null || json.isEmpty()) {
-            LOG.error("Error fetching response from {} ", this.getUserStatsUrl());
+        try {
+            LOG.info("Fetching the user statistics from url {}", this::getUserStatsUrl);
+            String json = restTemplate.getForObject(getUserStatsUrl(), String.class);
+            if (json == null || json.isEmpty()) {
+                LOG.error("Error fetching response from {} ", this.getUserStatsUrl());
+            }
+            if (!json.contains(Constants.NUMBER_OF_USERS)) {
+                LOG.error("{} field not present in user stats response", Constants.NUMBER_OF_USERS);
+            }
+            JSONObject jsonObject = new JSONObject(json);
+            return Long.parseLong(jsonObject.getString(Constants.NUMBER_OF_USERS));
+        } catch (Exception e) {
+            LOG.info("Error fetching response from {} ", this.getUserStatsUrl(), e);
         }
-        if (!json.contains(Constants.NUMBER_OF_USERS)) {
-            LOG.error("{} field not present in user stats response",Constants.NUMBER_OF_USERS);
-        }
-        JSONObject jsonObject = new JSONObject(json);
-        return Long.parseLong(jsonObject.getString(Constants.NUMBER_OF_USERS));
+        return 0;
     }
 
     /**
@@ -151,6 +156,8 @@ public class AnalyticsServiceClient {
 
         } catch (IOException e) {
             LOG.error("Exception when deserializing response.", e);
+        } catch (Exception e) {
+            LOG.error("Error fetching response from {} ", this.getSearchApiUrl(), e);
         }
         return null;
     }
