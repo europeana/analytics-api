@@ -156,8 +156,6 @@ public class AnalyticsServiceClient {
 
         } catch (IOException e) {
             LOG.error("Exception when deserializing response.", e);
-        } catch (Exception e) {
-            LOG.error("Error fetching response from {} ", this.getSearchApiUrl(), e);
         }
         return null;
     }
