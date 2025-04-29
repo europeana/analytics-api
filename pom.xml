@@ -16,13 +16,13 @@
     <packaging>jar</packaging>
 
     <properties>
-        <java.version>11</java.version>
-        <version.apiCommons>0.3.23</version.apiCommons>
+        <java.version>17</java.version>
+        <version.apiCommons>0.4.6-SNAPSHOT</version.apiCommons>
         <version.databox>2.3</version.databox>
 
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
-        <spring-boot.version>2.3.3.RELEASE</spring-boot.version>
+        <spring-boot.version>3.4.5</spring-boot.version>
         <spring.boot.mainclass>eu.europeana.api.analytics.AnalyticsGenerator</spring.boot.mainclass>
 
     </properties>

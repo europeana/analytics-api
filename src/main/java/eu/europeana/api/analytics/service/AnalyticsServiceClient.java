@@ -2,20 +2,25 @@ package eu.europeana.api.analytics.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.europeana.api.analytics.exception.DataboxPushFailedException;
-import eu.europeana.api.analytics.utils.Constants;
 import eu.europeana.api.commons.definitions.statistics.UsageStatsFields;
 import eu.europeana.api.commons.definitions.statistics.entity.EntityMetric;
 import eu.europeana.api.commons.definitions.statistics.search.SearchMetric;
 import eu.europeana.api.commons.definitions.statistics.set.SetMetric;
+import eu.europeana.api.commons.definitions.statistics.user.UserMetric;
+import jakarta.annotation.PostConstruct;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import javax.annotation.PostConstruct;
 import java.io.IOException;
+import java.util.Arrays;
+
+import static eu.europeana.api.analytics.utils.ErrorUtils.*;
+import static eu.europeana.api.commons.definitions.statistics.UsageStatsFields.NumberOfUsers;
+import static eu.europeana.api.commons.definitions.statistics.UsageStatsFields.NumberOfProjectClients;
+import static eu.europeana.api.commons.definitions.statistics.UsageStatsFields.NumberOfPersonalClients;
 
 @Service
 public class AnalyticsServiceClient {
@@ -75,22 +80,16 @@ public class AnalyticsServiceClient {
      * Method to fetch the statistics from apikey.
      * @return
      */
-    public long getUserStats() {
+    public UserMetric getUserStats() {
         try {
             LOG.info("Fetching the user statistics from url {}", this::getUserStatsUrl);
             String json = restTemplate.getForObject(getUserStatsUrl(), String.class);
-            if (json == null || json.isEmpty()) {
-                LOG.error("Error fetching response from {} ", this.getUserStatsUrl());
-            }
-            if (!json.contains(Constants.NUMBER_OF_USERS)) {
-                LOG.error("{} field not present in user stats response", Constants.NUMBER_OF_USERS);
-            }
-            JSONObject jsonObject = new JSONObject(json);
-            return Long.parseLong(jsonObject.getString(Constants.NUMBER_OF_USERS));
+            logErrors(json, getUserStatsUrl(), Arrays.asList(NumberOfUsers, NumberOfPersonalClients, NumberOfProjectClients));
+            return mapper.readValue(json, UserMetric.class);
         } catch (Exception e) {
-            LOG.info("Error fetching response from {} ", this.getUserStatsUrl(), e);
+            LOG.info(Error_fetching_response, this.getUserStatsUrl(), e);
         }
-        return 0;
+        return null;
     }
 
     /**
@@ -105,7 +104,7 @@ public class AnalyticsServiceClient {
                 return mapper.readValue(json, SetMetric.class);
             }
         } catch (IOException e) {
-            LOG.error("Exception when deserializing response.", e);
+            LOG.error(Exception_when_deserializing, e);
         }
         return null;
     }
@@ -119,15 +118,15 @@ public class AnalyticsServiceClient {
         try {
             String json = restTemplate.getForObject(getEntityStatsUrl(), String.class);
             if (json == null || json.isEmpty()) {
-                LOG.error("Error fetching response from {} ", this.getEntityStatsUrl());
+                LOG.error(Error_fetching_response, this.getEntityStatsUrl());
             }
-            if (!json.contains(UsageStatsFields.ENTITIES_PER_LANG)) {
+            if (json != null && !json.contains(UsageStatsFields.ENTITIES_PER_LANG)) {
                 LOG.error("{} field not present in entity stats response", UsageStatsFields.ENTITIES_PER_LANG);
             }
            return mapper.readValue(json, EntityMetric.class);
 
         } catch (IOException e) {
-            LOG.error("Exception when deserializing response.", e);
+            LOG.error(Exception_when_deserializing, e);
         }
         return null;
     }
@@ -140,22 +139,10 @@ public class AnalyticsServiceClient {
         LOG.info("Fetching the search statistics from url {}", this::getSearchApiUrl);
         try {
             String json = restTemplate.getForObject(getSearchApiUrl(), String.class);
-            if (json == null || json.isEmpty()) {
-                LOG.error("Error fetching response from {} ", this.getSearchApiUrl());
-            }
-            if (!json.contains(UsageStatsFields.ITEMS_LINKED_TO_ENTITIES)) {
-                LOG.error(" {} field not present in search api stats response", UsageStatsFields.ITEMS_LINKED_TO_ENTITIES);
-            }
-            if(!json.contains(UsageStatsFields.ALL_RECORDS) || !json.contains(UsageStatsFields.NON_COMPLAINT_RECORDS) ||
-                    !json.contains(UsageStatsFields.ALL_COMPLAINT_RECORDS) || !json.contains(UsageStatsFields.HIGH_QUALITY_DATA) ||
-                    !json.contains(UsageStatsFields.HIGH_QUALITY_CONTENT) || !json.contains(UsageStatsFields.HIGH_QUALITY_RESUABLE_CONTENT) ||
-                    !json.contains(UsageStatsFields.HIGH_QUALITY_METADATA)) {
-                LOG.error("High quality metric data not present in search api stats response");
-            }
+            logErrors(json, getSearchApiUrl());
             return mapper.readValue(json, SearchMetric.class);
-
         } catch (IOException e) {
-            LOG.error("Exception when deserializing response.", e);
+            LOG.error(Exception_when_deserializing, e);
         }
         return null;
     }
