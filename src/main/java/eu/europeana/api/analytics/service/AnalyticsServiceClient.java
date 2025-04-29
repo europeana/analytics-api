@@ -104,8 +104,8 @@ public class AnalyticsServiceClient {
             if (json != null && !json.isEmpty() && json.contains(UsageStatsFields.TYPE)) {
                 return mapper.readValue(json, SetMetric.class);
             }
-        } catch (Exception e) {
-            LOG.error("Error fetching response from {} ", this.getSetApiStatsUrl(),  e);
+        } catch (IOException e) {
+            LOG.error("Exception when deserializing response.", e);
         }
         return null;
     }
