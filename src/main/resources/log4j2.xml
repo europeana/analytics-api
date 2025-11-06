@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+<!--             Use the JSON layout for production (logging to ELK) -->
+                        <PatternLayout pattern="{&quot;@timestamp&quot;:&quot;%d{yyyy-MM-dd'T'HH:mm:ss.SSSXXX}&quot;,&quot;level&quot;:&quot;%-5p&quot;,&quot;thread&quot;:&quot;%t&quot;,&quot;class&quot;:&quot;%C&quot;, &quot;code_line_number&quot;:&quot;%L&quot;,&quot;message&quot;:&quot;%m&quot;}%n" />
+        </Console>
+    </Appenders>
+
+    <Loggers>
+        <Root level="INFO" additivity="false">
+            <appender-ref ref="Console" />
+        </Root>
+        <Logger name="org.apache.jena.riot" level="ERROR" />
+        <Logger name="eu.europeana.api.analytics" level="INFO" />
+    </Loggers>
+</Configuration>

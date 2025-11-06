@@ -1,0 +1,6 @@
+/.idea/
+/target/
+/*.iml
+**/analytics.user.properties
+
+src/main/resources/analytics-user.properties

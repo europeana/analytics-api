@@ -1,0 +1,39 @@
+{
+  "query": {
+    "bool": {
+      "must": {
+        "query_string": {
+          "query": "(host:(\"api.europeana.eu\" OR \"search-api.europeana.eu\" OR \"newspapers.eanadev.org\") OR (host:\"www.europeana.eu\" AND request_uri:(\\/record\\/* OR \\/api\\/v2\\/* OR \\/fulltext\\/search* ) AND NOT request_uri: \\/api\\/v2\\/thumbnail-by-url.json* ) ) AND  (status:\"200\" OR status:\"202\")",
+          "analyze_wildcard": true
+        }
+      },
+      "filter": {
+        "range": {
+          "@timestamp": {
+            "gte": "now-1M/M",
+            "lte": "now-1M/M"
+          }
+        }
+      }
+    }
+  },
+  "aggs": {
+    "apikeys" : {
+      "terms" : {
+        "field" : "client_key",
+        "order" : { "_count" : "desc" },
+        "size" : 100000
+      },
+      "aggs": {
+        "date": {
+          "date_histogram" : {
+            "field" : "@timestamp",
+            "format": "yyyy-MM-dd",
+            "interval": "day"
+          }
+        }
+      }
+    }
+  },
+  "size": 0
+}
