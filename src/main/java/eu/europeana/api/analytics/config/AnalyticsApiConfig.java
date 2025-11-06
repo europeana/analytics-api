@@ -72,9 +72,6 @@ public class AnalyticsApiConfig {
     @Value("${apikey_dates.csv.file.location}")
     private String apiKeyAndDatesCsvFile;
 
-    @Value("${apikey.summary.file.location}")
-    private String apiKeySummaryFile;
-
     @Value("${monthly.schedule: 1}")
     private int dayOfMonth;
 
@@ -120,10 +117,6 @@ public class AnalyticsApiConfig {
 
     public File getApiKeyAndDatesCsvFile() {
         return StringUtils.isEmpty(apiKeyAndDatesCsvFile) ? null : new File(apiKeyAndDatesCsvFile);
-    }
-
-    public File getApiKeySummaryFile() {
-        return StringUtils.isEmpty(apiKeySummaryFile) ? null : new File(apiKeySummaryFile);
     }
 
     public int getDayOfMonth() {
