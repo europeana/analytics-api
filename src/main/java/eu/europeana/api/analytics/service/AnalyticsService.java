@@ -5,7 +5,6 @@ import eu.europeana.api.analytics.config.AnalyticsApiConfig;
 import eu.europeana.api.analytics.exception.ApiKeyStatisticsException;
 import eu.europeana.api.analytics.exception.DataboxPushFailedException;
 import eu.europeana.api.commons.auth.AuthenticationHandler;
-import eu.europeana.api.commons.definitions.statistics.UsageStatsFields;
 import eu.europeana.api.commons.definitions.statistics.entity.EntityMetric;
 import eu.europeana.api.commons.definitions.statistics.search.SearchMetric;
 import eu.europeana.api.commons.definitions.statistics.set.SetMetric;
@@ -14,16 +13,14 @@ import eu.europeana.api.commons.definitions.statistics.user.UserMetric;
 import eu.europeana.api.commons.http.HttpConnection;
 import eu.europeana.api.commons.http.HttpResponseHandler;
 import jakarta.annotation.Resource;
+import org.apache.hc.core5.http.HttpStatus;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.Arrays;
 
-import static eu.europeana.api.analytics.utils.ErrorUtils.*;
-import static eu.europeana.api.commons.definitions.statistics.UsageStatsFields.*;
 import static eu.europeana.api.analytics.utils.Constants.ANALYTICS_API_AUTH;
 
 /**
@@ -92,13 +89,11 @@ public class AnalyticsService {
         try {
             LOG.info("Fetching the user statistics from url {}", analyticsApiConfig.getUserStatsUrl());
             HttpResponseHandler response = httpConnection.get(analyticsApiConfig.getUserStatsUrl(), "application/json", authHandler);
-        //    String json = restTemplate.getForObject(analyticsApiConfig.getUserStatsUrl(), String.class);
-            logErrors(json,
-                    analyticsApiConfig.getUserStatsUrl(),
-                    Arrays.asList(NumberOfUsers, RegisteredClients));
-            return mapper.readValue(json, UserMetric.class);
+            if (response.getStatus() == HttpStatus.SC_OK) {
+                return mapper.readValue(response.getResponse(), UserMetric.class);
+            }
         } catch (IOException e) {
-            LOG.error(Error_fetching_response, analyticsApiConfig.getUserStatsUrl(), e);
+            LOG.error("Error fetching response from {}", analyticsApiConfig.getUserStatsUrl(), e);
         }
         return null;
     }
@@ -110,12 +105,12 @@ public class AnalyticsService {
     private SetMetric getSetApiStats() {
         LOG.info("Fetching the gallery statistics from url {}", analyticsApiConfig.getSetApiStatsUrl());
         try {
-            String json = restTemplate.getForObject(analyticsApiConfig.getSetApiStatsUrl(), String.class);
-            if (json != null && !json.isEmpty() && json.contains(UsageStatsFields.TYPE)) {
-                return mapper.readValue(json, SetMetric.class);
+            HttpResponseHandler response = httpConnection.get(analyticsApiConfig.getSetApiStatsUrl(), "application/json", authHandler);
+            if (response.getStatus() == HttpStatus.SC_OK) {
+                return mapper.readValue(response.getResponse(), SetMetric.class);
             }
         } catch (IOException e) {
-            LOG.error(Exception_when_deserializing, e);
+            LOG.error("Error fetching response from {}", analyticsApiConfig.getSetApiStatsUrl(), e);
         }
         return null;
     }
@@ -127,17 +122,11 @@ public class AnalyticsService {
     private EntityMetric getEntityApiStats() {
         LOG.info("Fetching the entity statistics from url {}", analyticsApiConfig.getEntityStatsUrl());
         try {
-            String json = restTemplate.getForObject(analyticsApiConfig.getEntityStatsUrl(), String.class);
-            if (json == null || json.isEmpty()) {
-                LOG.error(Error_fetching_response, analyticsApiConfig.getEntityStatsUrl());
-            }
-            if (json != null && !json.contains(UsageStatsFields.ENTITIES_PER_LANG)) {
-                LOG.error("{} field not present in entity stats response", UsageStatsFields.ENTITIES_PER_LANG);
-            }
-           return mapper.readValue(json, EntityMetric.class);
-
+            HttpResponseHandler response = httpConnection.get(analyticsApiConfig.getEntityStatsUrl(), "application/json", authHandler);
+            if (response.getStatus() == HttpStatus.SC_OK) {
+                return mapper.readValue(response.getResponse(), EntityMetric.class);}
         } catch (IOException e) {
-            LOG.error(Exception_when_deserializing, e);
+            LOG.error("Error fetching response from {}", analyticsApiConfig.getEntityStatsUrl(), e);
         }
         return null;
     }
@@ -146,14 +135,19 @@ public class AnalyticsService {
      * Method to fetch the statistics from search api
      * @return
      */
-    private SearchMetric getSearchApiStats() {
+    private SearchMetric getSearchApiStats() throws DataboxPushFailedException {
         LOG.info("Fetching the search statistics from url {}", analyticsApiConfig.getSearchApiUrl());
         try {
-            String json = restTemplate.getForObject(analyticsApiConfig.getSearchApiUrl(), String.class);
-            logErrors(json, analyticsApiConfig.getSearchApiUrl());
-            return mapper.readValue(json, SearchMetric.class);
+            HttpResponseHandler response = httpConnection.get(analyticsApiConfig.getSearchApiUrl(), "application/json", authHandler);
+            if (response.getStatus() == HttpStatus.SC_OK) {
+                return mapper.readValue(response.getResponse(), SearchMetric.class);
+            }
+            // TODO : Temp fix , should be removed once we have implemented EA-4346
+            if (response.getStatus() == HttpStatus.SC_GATEWAY_TIMEOUT) {
+                throw new DataboxPushFailedException("Gateway Timeout from SR API !! ");
+            }
         } catch (IOException e) {
-            LOG.error(Exception_when_deserializing, e);
+            LOG.error("Error fetching response from {}", analyticsApiConfig.getSearchApiUrl(), e);
         }
         return null;
     }
