@@ -4,24 +4,27 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.europeana.api.analytics.config.AnalyticsApiConfig;
 import eu.europeana.api.analytics.exception.ApiKeyStatisticsException;
 import eu.europeana.api.analytics.exception.DataboxPushFailedException;
+import eu.europeana.api.commons.auth.AuthenticationHandler;
 import eu.europeana.api.commons.definitions.statistics.UsageStatsFields;
 import eu.europeana.api.commons.definitions.statistics.entity.EntityMetric;
 import eu.europeana.api.commons.definitions.statistics.search.SearchMetric;
 import eu.europeana.api.commons.definitions.statistics.set.SetMetric;
 import eu.europeana.api.commons.definitions.statistics.user.ELKMetric;
 import eu.europeana.api.commons.definitions.statistics.user.UserMetric;
+import eu.europeana.api.commons.http.HttpConnection;
+import eu.europeana.api.commons.http.HttpResponseHandler;
 import jakarta.annotation.Resource;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.util.Arrays;
 
 import static eu.europeana.api.analytics.utils.ErrorUtils.*;
 import static eu.europeana.api.commons.definitions.statistics.UsageStatsFields.*;
+import static eu.europeana.api.analytics.utils.Constants.ANALYTICS_API_AUTH;
 
 /**
  * Analytics Api service class.
@@ -35,10 +38,13 @@ public class AnalyticsService {
     @Resource
     private AnalyticsApiConfig analyticsApiConfig;
 
+    @Resource(name = ANALYTICS_API_AUTH)
+    private AuthenticationHandler authHandler;
+
     private final ApiKeyStatsService apiKeyStatsService;
     private final DataboxService databoxService;
 
-    private RestTemplate restTemplate = new RestTemplate();
+    private HttpConnection httpConnection = new HttpConnection(true);
     private ObjectMapper mapper = new ObjectMapper();
 
     /**
@@ -85,7 +91,8 @@ public class AnalyticsService {
     private UserMetric getUserStats() {
         try {
             LOG.info("Fetching the user statistics from url {}", analyticsApiConfig.getUserStatsUrl());
-            String json = restTemplate.getForObject(analyticsApiConfig.getUserStatsUrl(), String.class);
+            HttpResponseHandler response = httpConnection.get(analyticsApiConfig.getUserStatsUrl(), "application/json", authHandler);
+        //    String json = restTemplate.getForObject(analyticsApiConfig.getUserStatsUrl(), String.class);
             logErrors(json,
                     analyticsApiConfig.getUserStatsUrl(),
                     Arrays.asList(NumberOfUsers, RegisteredClients));

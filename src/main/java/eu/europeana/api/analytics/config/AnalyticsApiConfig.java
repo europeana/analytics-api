@@ -7,6 +7,7 @@ import eu.europeana.api.analytics.service.ClientsServiceConnection;
 import eu.europeana.api.analytics.service.ElasticSearchConnection;
 import eu.europeana.api.commons.auth.AuthenticationBuilder;
 import eu.europeana.api.commons.auth.AuthenticationConfig;
+import eu.europeana.api.commons.auth.AuthenticationHandler;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,12 +20,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Properties;
 
 import static com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.NONE;
 import static eu.europeana.api.analytics.utils.Constants.DATABOX;
 import static eu.europeana.api.analytics.utils.Constants.ELASTIC_SEARCH_CONNECTION;
 import static eu.europeana.api.analytics.utils.Constants.REGISTERED_CLIENT_CONNECTION;
+import static eu.europeana.api.analytics.utils.Constants.ANALYTICS_API_AUTH;
 
 /**
  * Configuration class of Analytics api
@@ -152,18 +153,15 @@ public class AnalyticsApiConfig {
 
     @Bean(REGISTERED_CLIENT_CONNECTION)
     public ClientsServiceConnection getClientsServiceConnection() {
-        return  new ClientsServiceConnection(
+        return new ClientsServiceConnection(
                 getRegisteredClientsUrl(),
-                AuthenticationBuilder.newAuthentication(
-                        new AuthenticationConfig(loadProperties())),
+                getAnalyticsApiAuthHandler(),
                 getObjectMapper());
     }
 
-    private Properties loadProperties() {
-        Properties properties = new Properties();
-        properties.setProperty(AuthenticationConfig.CONFIG_TOKEN_ENDPOINT, tokenEndpoint);
-        properties.setProperty(AuthenticationConfig.CONFIG_GRANT_PARAMS, grantParams);
-        return properties;
+    @Bean(ANALYTICS_API_AUTH)
+    public AuthenticationHandler getAnalyticsApiAuthHandler() {
+        return AuthenticationBuilder.newAuthentication(new AuthenticationConfig(tokenEndpoint, grantParams));
     }
 
     @Primary

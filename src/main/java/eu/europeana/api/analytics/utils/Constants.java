@@ -24,6 +24,7 @@ public class Constants extends UsageStatsFields {
     // Beans
     public static final String ELASTIC_SEARCH_CONNECTION   = "elasticSearchConnection";
     public static final String REGISTERED_CLIENT_CONNECTION= "registeredClientConnection";
+    public static final String ANALYTICS_API_AUTH          = "analyticsApiAuth";
 
     public static final String DATABOX                     = "databox";
 
