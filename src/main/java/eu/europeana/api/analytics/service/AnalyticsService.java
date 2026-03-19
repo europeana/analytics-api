@@ -79,6 +79,7 @@ public class AnalyticsService {
     public void executeMonthlyTask() throws DataboxPushFailedException {
         ELKMetric    elkMetric       = getELKStats();
         databoxService.pushElkMetrics(elkMetric);
+        LOG.error("Successfully pushed the monthly task data to databox...... ");
     }
 
     /**
